@@ -257,6 +257,7 @@
       <label for="oPhone">Телефон *</label>
       <input id="oPhone" maxlength="20" inputmode="tel" autocomplete="tel" placeholder="+7 900 000‑00‑00">
 
+      <div id="dlBlock">
       <h2>Доставка</h2>
       <div class="radios" id="delivery">
         <label class="radio"><input type="radio" name="dl" value="СДЭК" checked> 📦 СДЭК — пункт выдачи</label>
@@ -265,14 +266,16 @@
       </div>
       <label for="oAddr" id="addrLabel">Город и адрес пункта выдачи *</label>
       <input id="oAddr" maxlength="200" placeholder="Москва, ул. Ленина, 1">
+      </div>
       <div class="note" id="dnote"></div>
 
       <h2>Оплата</h2>
       <div class="radios" id="payWrap">
-        <label class="radio"><input type="radio" name="pay" value="card" checked> 💳 Перевод на карту</label>
+        <label class="radio" id="essOpt" style="display:none"><input type="radio" name="pay" value="essens"> 🌐 На официальном сайте ESSENS</label>
+        <label class="radio" id="cardOpt"><input type="radio" name="pay" value="card" checked> 💳 Перевод на карту</label>
         <label class="radio" id="cryptoOpt" style="display:none"><input type="radio" name="pay" value="crypto"> 💎 Криптовалюта (CryptoBot)</label>
       </div>
-      <p class="muted" style="margin:8px 2px 0">Реквизиты для оплаты бот пришлёт сразу после оформления.</p>
+      <p class="muted" style="margin:8px 2px 0" id="payHint">Реквизиты для оплаты бот пришлёт сразу после оформления.</p>
 
       <label for="oComment">Комментарий к заказу</label>
       <textarea id="oComment" maxlength="500" placeholder="Например: удобное время для связи"></textarea>
@@ -392,6 +395,7 @@ const CFG = {
   support:  (P.get("support") || "").replace(/^@/, ""),
   crypto:   P.get("crypto") === "1",
   delivery: P.get("dn")   || "Доставка СДЭК или Почтой России оплачивается при получении.",
+  pm:       P.get("pm") === "essens" ? "essens" : "card",
 };
 const CATS = {w:"Женский", m:"Мужской", lux:"Luxury", probe:"Пробник", set:"Набор"};
 
@@ -429,6 +433,13 @@ if (/^[A-Za-z0-9_]{4,32}$/.test(CFG.support)) {
   $("#direct").onclick = () => { const l="https://t.me/"+CFG.support; inTG ? tg.openTelegramLink(l) : window.open(l,"_blank"); };
 }
 if (CFG.crypto) $("#cryptoOpt").style.display = "flex";
+if (CFG.pm === "essens") {
+  $("#dlBlock").style.display = "none";
+  $("#cardOpt").style.display = "none";
+  $("#essOpt").style.display = "flex";
+  $("#essOpt input").checked = true;
+  $("#payHint").textContent = "Мы соберём вашу корзину на официальном сайте ESSENS и пришлём ссылку в чат — останется проверить состав, указать адрес и оплатить картой.";
+}
 $("#dnote").textContent = "🚚 " + CFG.delivery;
 
 /* ═══════ Каталог ═══════ */
@@ -594,7 +605,7 @@ $("#order").onsubmit = e => {
   const bad = [];
   if (f.name.value.trim().length < 2) bad.push(f.name);
   if (f.phone.value.replace(/\D/g,"").length < 10) bad.push(f.phone);
-  if (dl !== "Самовывоз" && f.addr.value.trim().length < 5) bad.push(f.addr);
+  if (CFG.pm !== "essens" && dl !== "Самовывоз" && f.addr.value.trim().length < 5) bad.push(f.addr);
   Object.values(f).forEach(i => i.classList.toggle("bad", bad.includes(i)));
   if (bad.length){ bad[0].focus(); toast("Заполните отмеченные поля"); try{tg.HapticFeedback.notificationOccurred("error")}catch(_){}; return; }
 
@@ -602,7 +613,7 @@ $("#order").onsubmit = e => {
     type: "order",
     items: items.map(([id,q]) => [id, q]),
     name: f.name.value.trim().slice(0,80), phone: f.phone.value.trim().slice(0,20),
-    delivery: dl, address: f.addr.value.trim().slice(0,200),
+    delivery: CFG.pm === "essens" ? "" : dl, address: CFG.pm === "essens" ? "" : f.addr.value.trim().slice(0,200),
     pay: document.querySelector('input[name="pay"]:checked').value,
     comment: $("#oComment").value.trim().slice(0,500),
     total: cartTotal(),
