@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>Ароматы ESSENS</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: var(--tg-theme-bg-color, #faf7f4);
+    --bg2: var(--tg-theme-secondary-bg-color, #f1ebe5);
+    --text: var(--tg-theme-text-color, #2a2320);
+    --hint: var(--tg-theme-hint-color, #8b7f78);
+    --link: var(--tg-theme-link-color, #9c4a5a);
+    --card: var(--tg-theme-section-bg-color, #ffffff);
+    --btn: #9c4a5a; --btn-text:#fff;
+    --gold:#c9a45c;
+    --line: rgba(128,100,90,.18);
+    --radius:16px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font:15px/1.45 "Manrope",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+       padding-bottom:calc(150px + env(safe-area-inset-bottom))}
+  a{color:var(--link)}
+  .wrap{max-width:620px;margin:0 auto;padding:0 16px}
+  h1,h2,h3{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;margin:0;letter-spacing:.2px}
+  h1{font-size:30px;line-height:1.1} h2{font-size:24px;margin:22px 0 10px}
+  .muted{color:var(--hint);font-size:13px}
+  button{font-family:inherit}
+
+  .hero{margin:16px 0 4px;padding:22px 20px;border-radius:22px;color:#fff;position:relative;overflow:hidden;
+    background:radial-gradient(120% 140% at 100% 0%,#c98b8f 0%,#9c4a5a 45%,#4a2530 100%)}
+  .hero::after{content:"";position:absolute;right:-30px;bottom:-40px;width:160px;height:160px;border-radius:50%;
+    border:1px solid rgba(255,255,255,.25);box-shadow:0 0 0 18px rgba(255,255,255,.06),0 0 0 40px rgba(255,255,255,.04)}
+  .hero p{margin:8px 0 0;opacity:.92;max-width:340px}
+  .hero .tag{display:inline-block;font-size:11px;letter-spacing:1.6px;text-transform:uppercase;opacity:.85;margin-bottom:8px}
+  .hero .btn{margin-top:16px}
+
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:0;border-radius:14px;
+    padding:14px 16px;font:600 15px "Manrope",sans-serif;cursor:pointer;background:var(--btn);color:var(--btn-text);text-decoration:none}
+  .btn.light{background:#fff;color:#7a3442}
+  .btn.ghost{background:transparent;color:var(--link);border:1px solid var(--line)}
+  .btn:disabled{opacity:.5}
+  .btn:active{transform:scale(.985)}
+
+  .search{width:100%;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--card);
+    color:var(--text);font:inherit;margin-top:14px;outline:none}
+  .chips{display:flex;gap:8px;overflow-x:auto;padding:12px 0 2px;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex:0 0 auto;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);
+    color:var(--text);font:500 13px "Manrope",sans-serif;cursor:pointer}
+  .chip.on{background:var(--text);color:var(--bg);border-color:var(--text)}
+  .bar{display:flex;justify-content:space-between;align-items:center;margin:14px 0 10px}
+  .bar span{white-space:nowrap}
+  .bar select{width:auto;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:10px;padding:6px 8px;font:500 13px "Manrope",sans-serif}
+
+  .club{display:flex;align-items:center;gap:12px;margin-top:14px;padding:12px 14px;border-radius:14px;
+    background:var(--bg2);cursor:pointer;border:0;width:100%;text-align:left;color:var(--text);font:inherit}
+  .club b{display:block;font-size:14px}.club span{font-size:12.5px;color:var(--hint)}
+  .club .ar{margin-left:auto;color:var(--hint);font-size:18px}
+
+  /* ── product grid ── */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(min-width:520px){.grid{grid-template-columns:1fr 1fr 1fr}}
+  .pc{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column}
+  .pc .info{padding:10px 12px 12px;display:flex;flex-direction:column;gap:2px;flex:1}
+  .pc .code{font:700 17px "Cormorant Garamond",serif;letter-spacing:.5px}
+  .pc .fam{font-size:12.5px;font-weight:600;color:var(--link)}
+  .pc .nm{font-size:12px;color:var(--hint);line-height:1.3;min-height:31px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .pc .row{display:flex;align-items:center;justify-content:space-between;margin-top:8px;gap:6px}
+  .pc .price{font-weight:700;font-size:15px;white-space:nowrap}
+  .pc.off{opacity:.55}
+  .add{border:0;background:var(--btn);color:#fff;width:36px;height:36px;border-radius:12px;font-size:20px;line-height:1;cursor:pointer}
+  .stepper{display:flex;align-items:center;background:var(--bg2);border-radius:12px;height:36px}
+  .stepper button{border:0;background:transparent;color:var(--text);width:32px;height:36px;font-size:18px;cursor:pointer}
+  .stepper span{min-width:18px;text-align:center;font-weight:700;font-size:14px}
+
+  /* ── generated product visual ── */
+  .vis{aspect-ratio:1/1;position:relative;display:grid;place-items:center;cursor:pointer;overflow:hidden;
+    background:radial-gradient(90% 90% at 30% 20%,hsl(var(--h) 70% 92%),hsl(var(--h) 45% 74%) 70%,hsl(var(--h) 40% 62%))}
+  .vis img{width:100%;height:100%;object-fit:cover;display:block}
+  .bottle{position:relative;width:44%;height:52%;margin-top:14%;border-radius:12px 12px 18px 18px;
+    background:linear-gradient(160deg,rgba(255,255,255,.85),rgba(255,255,255,.35) 60%,rgba(255,255,255,.55));
+    border:1px solid rgba(255,255,255,.8);box-shadow:0 10px 24px hsla(var(--h),40%,30%,.25), inset 0 0 0 4px rgba(255,255,255,.25);
+    display:grid;place-items:center}
+  .bottle::before{content:"";position:absolute;top:-16%;left:36%;width:28%;height:16%;background:hsl(var(--h) 25% 35%);border-radius:3px 3px 0 0}
+  .bottle::after{content:"";position:absolute;top:-34%;left:28%;width:44%;height:20%;border-radius:8px 8px 4px 4px;
+    background:linear-gradient(180deg,hsl(var(--h) 25% 30%),hsl(var(--h) 30% 18%))}
+  .bottle span{font:700 clamp(13px,4vw,19px) "Cormorant Garamond",serif;color:hsl(var(--h) 35% 25%);letter-spacing:.5px}
+  .k-lux{background:radial-gradient(90% 90% at 30% 20%,#3a3226,#17130e 75%)}
+  .k-lux .bottle{background:linear-gradient(160deg,#2b2620,#0d0b09);border:1px solid #c9a45c;box-shadow:0 10px 28px rgba(0,0,0,.5), inset 0 0 0 4px rgba(201,164,92,.15)}
+  .k-lux .bottle::before{background:#8c7240}.k-lux .bottle::after{background:linear-gradient(180deg,#e6c983,#a9853f)}
+  .k-lux .bottle span{color:#e6c983}
+  .k-probe .bottle{width:20%;height:56%;border-radius:8px}
+  .k-probe .bottle::before{display:none}.k-probe .bottle::after{top:-14%;left:10%;width:80%;height:14%;border-radius:4px}
+  .k-probe .bottle span{writing-mode:vertical-rl;font-size:13px}
+  .k-set .bottle{width:58%;height:42%;margin-top:6%;border-radius:8px}
+  .k-set .bottle::before{top:0;left:44%;width:12%;height:100%;background:hsl(var(--h) 50% 45%);border-radius:0}
+  .k-set .bottle::after{top:-18%;left:34%;width:32%;height:20%;border-radius:50% 50% 10% 10%;background:hsl(var(--h) 50% 45%)}
+  .k-set .bottle span{position:relative;z-index:1;background:rgba(255,255,255,.85);padding:0 6px;border-radius:6px;font-size:14px}
+  .badge-off{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;padding:3px 8px;border-radius:99px}
+  .empty{text-align:center;color:var(--hint);padding:30px 0}
+
+  /* ── sheet ── */
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:30;display:none}
+  .sheet{position:fixed;left:0;right:0;bottom:0;z-index:31;background:var(--bg);border-radius:22px 22px 0 0;
+    max-height:90vh;overflow:auto;transform:translateY(100%);visibility:hidden;transition:transform .25s ease,visibility 0s .25s;padding-bottom:env(safe-area-inset-bottom)}
+  .sheet.on{transform:none;visibility:visible;transition:transform .25s ease}
+  .sheet .in{max-width:620px;margin:0 auto;padding:12px 16px 20px}
+  .grab{width:40px;height:4px;border-radius:4px;background:var(--line);margin:0 auto 12px}
+  .sheet .vis{border-radius:18px;max-height:46vh;aspect-ratio:auto;height:46vw;min-height:220px}
+  .sheet h3{font-size:28px;margin-top:14px}
+  .sheet .meta{color:var(--hint);margin:2px 0 10px}
+  .sheet .notes{font-size:14.5px;margin:10px 0 12px;line-height:1.5}
+  .famchip{display:inline-block;padding:5px 12px;border-radius:99px;background:var(--bg2);color:var(--link);font-weight:600;font-size:13px}
+  .pyr{display:grid;gap:8px;margin:0 0 14px}
+  .pyr div{display:grid;grid-template-columns:96px 1fr;gap:10px;align-items:start;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13.5px}
+  .pyr span{color:var(--hint);font-size:12.5px;font-weight:600}
+  .chips.sub{padding-top:8px}.chips.sub .chip{font-size:12.5px;padding:6px 12px}
+  .sheet .buy{display:flex;gap:10px;align-items:center;margin-top:8px}
+  .sheet .buy .price{font-weight:700;font-size:22px;margin-right:auto}
+  .sheet .stepper{height:48px}.sheet .stepper button{width:44px;height:48px}
+
+  /* ── floating cart bar ── */
+  .cartbar{position:fixed;left:0;right:0;bottom:calc(62px + env(safe-area-inset-bottom));z-index:9;padding:0 12px 8px;display:none}
+  .cartbar button{max-width:596px;margin:0 auto;display:flex;align-items:center;gap:10px;width:100%;border:0;border-radius:16px;
+    padding:13px 16px;background:var(--btn);color:#fff;font:600 15px "Manrope";box-shadow:0 8px 24px rgba(80,30,40,.35);cursor:pointer}
+  .cartbar .sum{margin-left:auto}
+
+  /* ── cart ── */
+  .line{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:10px;margin-bottom:8px}
+  .line .vis{width:64px;height:64px;aspect-ratio:auto;border-radius:12px;flex:0 0 64px}
+  .line .bottle span{font-size:10px}
+  .line .t{flex:1;min-width:0}
+  .line .t b{display:block;font-size:15px}.line .t span{font-size:12.5px;color:var(--hint)}
+  .line .t .p{color:var(--text);font-weight:700;font-size:14px;margin-top:2px;display:block}
+  .line .rm{border:0;background:transparent;color:var(--hint);font-size:20px;cursor:pointer;padding:4px}
+  .total{display:flex;justify-content:space-between;align-items:baseline;padding:12px 2px;border-top:1px dashed var(--line);margin-top:6px}
+  .total b{font-size:22px}
+  .note{padding:12px 14px;border-radius:14px;background:var(--bg2);font-size:13px;color:var(--hint);margin-top:10px}
+
+  label{display:block;font-size:13px;color:var(--hint);margin:14px 0 6px}
+  input,select,textarea{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);
+    color:var(--text);font:inherit;outline:none}
+  textarea{min-height:90px;resize:vertical}
+  input:focus,select:focus,textarea:focus{border-color:var(--btn)}
+  input.bad{border-color:#d9534f}
+  .radios{display:grid;gap:8px}
+  .radio{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--card);cursor:pointer;margin:0;color:var(--text);font-size:14px}
+  .radio input{width:auto;margin:0;accent-color:var(--btn)}
+  .ok{display:none;text-align:center;padding:30px 10px}.ok .big{font-size:44px}
+
+  /* guide */
+  .steps{counter-reset:s;display:flex;flex-direction:column;gap:10px;margin-top:6px}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .step summary{list-style:none;cursor:pointer;display:flex;gap:12px;align-items:center;padding:14px}
+  .step summary::-webkit-details-marker{display:none}
+  .step summary::before{counter-increment:s;content:counter(s);flex:0 0 30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--btn);color:#fff;font-weight:700;font-size:14px}
+  .step summary::after{content:"＋";margin-left:auto;color:var(--hint)}
+  .step[open] summary::after{content:"－"}
+  .step .body{padding:0 14px 14px 56px;font-size:14px}
+  .step ul{margin:6px 0;padding-left:18px}.step li{margin:3px 0}
+  .opt{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+  .opt div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;font-size:13px}
+  .opt b{display:block;font-size:14px;margin-bottom:4px}
+  .copy{display:flex;gap:8px;align-items:center;margin-top:10px;background:var(--card);border:1px dashed var(--line);border-radius:12px;padding:10px 12px;font-size:13px;word-break:break-all}
+  .copy button{flex:0 0 auto;border:0;background:var(--bg2);color:var(--text);border-radius:10px;padding:7px 10px;font:600 12px "Manrope";cursor:pointer}
+  .direct{display:none;align-items:center;gap:12px;margin-top:14px;width:100%;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--text);font:inherit;text-align:left;cursor:pointer}
+  .counter{text-align:right;font-size:12px;color:var(--hint);margin-top:4px}
+
+  /* tabbar */
+  .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--card);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom))}
+  .tabbar .in{max-width:620px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+  .tab{border:0;background:transparent;color:var(--hint);font:600 11.5px "Manrope",sans-serif;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;border-radius:12px;cursor:pointer;position:relative}
+  .tab .i{font-size:20px;line-height:1}
+  .tab.on{color:var(--btn);background:var(--bg2)}
+  .tab .cnt{position:absolute;top:2px;left:calc(50% + 6px);background:var(--btn);color:#fff;font-size:10.5px;min-width:18px;height:18px;border-radius:9px;display:none;place-items:center;padding:0 5px}
+  section{display:none}section.on{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .foot{margin:22px 0 8px;text-align:center;color:var(--hint);font-size:11.5px}
+  .toast{position:fixed;left:50%;top:14px;transform:translate(-50%,-80px);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:13.5px;z-index:50;transition:transform .25s}
+  .toast.on{transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+
+<!-- ═════════════ МАГАЗИН ═════════════ -->
+<section id="shop" class="wrap">
+  <div class="hero">
+    <div class="tag shopname">Ароматы ESSENS</div>
+    <h1>Парфюмерия<br>ESSENS</h1>
+    <p>Оригинальные ароматы с доставкой. Добавьте в корзину и оформите заказ прямо здесь.</p>
+  </div>
+
+  <input class="search" id="q" type="search" placeholder="Поиск: ваниль, роза, W195, «чёрное солнце»…">
+  <div class="chips" id="chips">
+    <button class="chip on" data-f="all">Все</button>
+    <button class="chip" data-f="w">Женские</button>
+    <button class="chip" data-f="m">Мужские</button>
+    <button class="chip" data-f="lux">Luxury</button>
+    <button class="chip" data-f="probe">Пробники</button>
+    <button class="chip" data-f="set">Наборы и уход</button>
+  </div>
+  <div class="chips sub" id="fchips">
+    <button class="chip on" data-ff="">Любой аромат</button>
+    <button class="chip" data-ff="цветоч">🌸 Цветочные</button>
+    <button class="chip" data-ff="фрукт">🍑 Фруктовые</button>
+    <button class="chip" data-ff="свеж">🍋 Свежие</button>
+    <button class="chip" data-ff="древес">🌲 Древесные</button>
+    <button class="chip" data-ff="восточ">🌙 Восточные</button>
+    <button class="chip" data-ff="сладк">🍦 Сладкие</button>
+  </div>
+
+  <button class="club" data-go="guide">
+    <span style="font-size:22px">💎</span>
+    <div><b>Скидка до 50% в клубе ESSENS</b><span>Регистрация за 5 минут — пошаговый гайд</span></div>
+    <span class="ar">›</span>
+  </button>
+
+  <div class="bar">
+    <span class="muted" id="found"></span>
+    <select id="sort">
+      <option value="">По умолчанию</option>
+      <option value="asc">Сначала дешевле</option>
+      <option value="desc">Сначала дороже</option>
+    </select>
+  </div>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" style="display:none">Ничего не нашлось — попробуйте другой запрос.</div>
+  <div class="foot"><span class="shopname">Ароматы ESSENS</span> · независимый партнёр ESSENS</div>
+</section>
+
+<!-- ═════════════ КОРЗИНА ═════════════ -->
+<section id="cart" class="wrap">
+  <h2 style="margin-top:18px">Корзина</h2>
+  <div id="cartEmpty" class="empty">
+    <div style="font-size:44px">🛍</div>
+    <p>В корзине пока пусто</p>
+    <button class="btn" data-go="shop" style="max-width:260px;margin:0 auto">Перейти в магазин</button>
+  </div>
+
+  <div id="cartFull">
+    <div id="lines"></div>
+    <div class="total"><span>Итого за товары</span><b id="sum">0 ₽</b></div>
+
+    <form id="order" novalidate>
+      <h2>Получатель</h2>
+      <label for="oName">Имя и фамилия *</label>
+      <input id="oName" maxlength="80" autocomplete="name" placeholder="Анна Иванова">
+      <label for="oPhone">Телефон *</label>
+      <input id="oPhone" maxlength="20" inputmode="tel" autocomplete="tel" placeholder="+7 900 000‑00‑00">
+
+      <h2>Доставка</h2>
+      <div class="radios" id="delivery">
+        <label class="radio"><input type="radio" name="dl" value="СДЭК" checked> 📦 СДЭК — пункт выдачи</label>
+        <label class="radio"><input type="radio" name="dl" value="Почта России"> ✉️ Почта России</label>
+        <label class="radio"><input type="radio" name="dl" value="Самовывоз"> 🤝 Самовывоз</label>
+      </div>
+      <label for="oAddr" id="addrLabel">Город и адрес пункта выдачи *</label>
+      <input id="oAddr" maxlength="200" placeholder="Москва, ул. Ленина, 1">
+      <div class="note" id="dnote"></div>
+
+      <h2>Оплата</h2>
+      <div class="radios" id="payWrap">
+        <label class="radio"><input type="radio" name="pay" value="card" checked> 💳 Перевод на карту</label>
+        <label class="radio" id="cryptoOpt" style="display:none"><input type="radio" name="pay" value="crypto"> 💎 Криптовалюта (CryptoBot)</label>
+      </div>
+      <p class="muted" style="margin:8px 2px 0">Реквизиты для оплаты бот пришлёт сразу после оформления.</p>
+
+      <label for="oComment">Комментарий к заказу</label>
+      <textarea id="oComment" maxlength="500" placeholder="Например: удобное время для связи"></textarea>
+
+      <button class="btn" type="submit" id="orderBtn" style="margin-top:16px">Оформить заказ</button>
+    </form>
+
+    <div class="ok" id="orderHint">
+      <div class="big">🤖</div>
+      <h2>Остался один шаг</h2>
+      <p class="muted">Чтобы оформить заказ, откройте магазин кнопкой <b>«🛍 Открыть магазин»</b> внизу чата с ботом.
+        Корзина сохранится.</p>
+      <button class="btn" id="toBot" style="margin-top:10px">Перейти в чат с ботом</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════ РЕГИСТРАЦИЯ ═════════════ -->
+<section id="guide" class="wrap">
+  <div class="hero">
+    <div class="tag">Клуб ESSENS · 5 минут</div>
+    <h1>Скидка до 50%<br>для членов клуба</h1>
+    <p>Зарегистрируйтесь по моей ссылке — я буду вашим спонсором и помогу с заказами и бизнесом.</p>
+    <button class="btn light" id="refBtn">Открыть регистрацию →</button>
+  </div>
+  <div class="copy"><span id="reflink" style="flex:1"></span><button id="copyBtn">Копировать</button></div>
+
+  <h2>Пошагово</h2>
+  <div class="steps">
+    <details class="step" open><summary><b>Откройте ссылку</b></summary>
+      <div class="body">Нажмите «Открыть регистрацию» выше. Поле <b>«Номер спонсора»</b> заполнится автоматически.
+        Если оно пустое — откройте ссылку ещё раз или напишите в поддержку.</div></details>
+    <details class="step"><summary><b>Заполните личные данные</b></summary>
+      <div class="body"><ul>
+        <li>Имя, Отчество, Фамилия — как в паспорте</li>
+        <li>E‑mail — на него придут письма от ESSENS</li>
+        <li>Мобильный телефон — код RUS +7</li>
+        <li>Пароль — от 8 символов: строчная и заглавная буква, цифра и спецсимвол (# * & …)</li>
+        <li>Повторите пароль</li></ul></div></details>
+    <details class="step"><summary><b>Выберите формат</b></summary>
+      <div class="body">
+        <div class="opt">
+          <div><b>🛍 Только покупки</b>Клубные цены и доп. скидка до 50%.</div>
+          <div><b>💼 Свой бизнес</b>Маркетинг‑план: доход от продаж и своей команды.</div>
+        </div>
+        <p class="muted" style="margin:10px 0 0">Не уверены? Начните с «Только покупки». Затем нажмите «Дальше».</p></div></details>
+    <details class="step"><summary><b>Анкета и адрес</b></summary>
+      <div class="body"><ul>
+        <li>Пол, дата рождения, язык — «Русский»</li>
+        <li>Контактный адрес: улица, дом, город, индекс, страна — Russian Federation</li></ul>
+        Сайт может запросить <b>ИНН</b> и <b>СНИЛС</b> (11 цифр и фото) — подготовьте их заранее.</div></details>
+    <details class="step"><summary><b>Согласия и готово</b></summary>
+      <div class="body">Отметьте согласия с условиями клуба и обработкой персональных данных и нажмите <b>«Регистрация»</b>.
+        Подтвердите почту — готово 🎉</div></details>
+  </div>
+  <div style="margin-top:16px;display:grid;gap:10px">
+    <button class="btn" id="refBtn2">Зарегистрироваться</button>
+    <button class="btn ghost" data-go="support">Нужна помощь с регистрацией</button>
+  </div>
+</section>
+
+<!-- ═════════════ ПОДДЕРЖКА ═════════════ -->
+<section id="support" class="wrap">
+  <div class="hero">
+    <div class="tag">Поддержка</div>
+    <h1>Напишите нам</h1>
+    <p>Подбор аромата, заказ, доставка или регистрация — отвечу лично в чате с ботом.</p>
+  </div>
+  <button type="button" id="direct" class="direct">
+    <span style="font-size:22px">✍️</span>
+    <div><span class="muted">Написать напрямую в Telegram</span><br><b id="directName"></b></div>
+    <span style="margin-left:auto;color:var(--hint)">›</span>
+  </button>
+  <form id="sform" novalidate>
+    <label for="sName">Как к вам обращаться</label>
+    <input id="sName" maxlength="60" placeholder="Имя">
+    <label for="sTopic">Тема</label>
+    <select id="sTopic">
+      <option>Подбор аромата</option><option>Заказ и доставка</option><option>Оплата</option>
+      <option>Регистрация</option><option>Бизнес с ESSENS</option><option>Другое</option>
+    </select>
+    <label for="sContact">Телефон или @username (необязательно)</label>
+    <input id="sContact" maxlength="60" placeholder="+7… или @…">
+    <label for="sText">Сообщение</label>
+    <textarea id="sText" maxlength="1500" placeholder="Опишите вопрос…"></textarea>
+    <div class="counter"><span id="sCnt">0</span>/1500</div>
+    <button class="btn" type="submit" style="margin-top:14px">Отправить</button>
+  </form>
+  <div class="ok" id="sOk">
+    <div class="big">💌</div><h2>Почти готово</h2>
+    <p class="muted">Нажмите кнопку ниже — откроется чат с ботом. Отправьте туда ваш вопрос одним сообщением.</p>
+    <button class="btn" id="sToBot" style="margin-top:10px">Открыть чат с ботом</button>
+  </div>
+</section>
+
+<!-- ═════════════ ОКНО ТОВАРА ═════════════ -->
+<div class="overlay" id="overlay"></div>
+<div class="sheet" id="sheet"><div class="in" id="sheetIn"></div></div>
+
+<div class="cartbar" id="cartbar"><button data-go="cart">🛍 <span id="cbCount"></span><span class="sum" id="cbSum"></span> →</button></div>
+<div class="toast" id="toast"></div>
+
+<nav class="tabbar"><div class="in">
+  <button class="tab" data-t="shop"><span class="i">🌸</span>Магазин</button>
+  <button class="tab" data-t="cart"><span class="i">🛍</span>Корзина<span class="cnt" id="tabCnt"></span></button>
+  <button class="tab" data-t="guide"><span class="i">💎</span>Клуб</button>
+  <button class="tab" data-t="support"><span class="i">💬</span>Поддержка</button>
+</div></nav>
+
+<script>
+/* ═══════ Настройки: бот передаёт их в адресе страницы (из .env). Справа — запасные значения ═══════ */
+const P = new URLSearchParams(location.search);
+const CFG = {
+  ref:      P.get("ref")  || "https://www.essensworld.ru/r-952080359",
+  bot:      P.get("bot")  || "",
+  shop:     P.get("shop") || "Ароматы ESSENS",
+  support:  (P.get("support") || "").replace(/^@/, ""),
+  crypto:   P.get("crypto") === "1",
+  delivery: P.get("dn")   || "Доставка СДЭК или Почтой России оплачивается при получении.",
+};
+const CATS = {w:"Женский", m:"Мужской", lux:"Luxury", probe:"Пробник", set:"Набор"};
+
+const tg = window.Telegram && window.Telegram.WebApp;
+const inTG = !!(tg && tg.platform && tg.platform !== "unknown");
+// sendData работает только при запуске с кнопки клавиатуры — у такого запуска нет query_id
+const canSend = inTG && !(tg.initDataUnsafe && tg.initDataUnsafe.query_id);
+if (inTG) { tg.ready(); tg.expand(); }
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const rub = n => n.toLocaleString("ru-RU") + " ₽";
+const haptic = (t="light") => { try { tg && tg.HapticFeedback.impactOccurred(t); } catch(e){} };
+function toast(t){ const el=$("#toast"); el.textContent=t; el.classList.add("on"); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove("on"),1600); }
+function openLink(u){ inTG ? tg.openLink(u) : window.open(u, "_blank", "noopener"); }
+function openBot(param){
+  if (!CFG.bot) return toast("Откройте магазин из чата с ботом");
+  const l = `https://t.me/${CFG.bot}` + (param ? `?start=${param}` : "");
+  if (inTG) { tg.openTelegramLink(l); tg.close(); } else window.open(l, "_blank");
+}
+
+/* ═══════ Название, поддержка, реф. ссылка ═══════ */
+document.title = CFG.shop;
+document.querySelectorAll(".shopname").forEach(e => e.textContent = CFG.shop);
+$("#reflink").textContent = CFG.ref;
+["#refBtn","#refBtn2"].forEach(s => $(s).onclick = () => openLink(CFG.ref));
+$("#copyBtn").onclick = e => {
+  const b = e.target, done = () => { b.textContent = "Скопировано ✓"; setTimeout(()=>b.textContent="Копировать",1800); };
+  (navigator.clipboard ? navigator.clipboard.writeText(CFG.ref) : Promise.reject()).then(done, () => {
+    const t=document.createElement("textarea"); t.value=CFG.ref; document.body.appendChild(t); t.select();
+    try{document.execCommand("copy")}catch(_){} t.remove(); done(); });
+};
+if (/^[A-Za-z0-9_]{4,32}$/.test(CFG.support)) {
+  $("#direct").style.display = "flex"; $("#directName").textContent = "@" + CFG.support;
+  $("#direct").onclick = () => { const l="https://t.me/"+CFG.support; inTG ? tg.openTelegramLink(l) : window.open(l,"_blank"); };
+}
+if (CFG.crypto) $("#cryptoOpt").style.display = "flex";
+$("#dnote").textContent = "🚚 " + CFG.delivery;
+
+/* ═══════ Каталог ═══════ */
+let PRODUCTS = [], BY = {};
+let filter = "all", query = "", sort = "", fam = "";
+
+function hue(p){
+  let h = 0; for (const c of p.id) h = (h*31 + c.charCodeAt(0)) % 997;
+  return {w: 330 + h % 45, m: 190 + h % 45, lux: 40, probe: 270 + h % 50, set: 15 + h % 25}[p.cat] ?? 20;
+}
+function vis(p){
+  const label = p.cat === "set" ? (p.id.startsWith("set") ? "SET" : "GEL") : p.code;
+  const inner = p.img ? `<img src="${esc(p.img)}" alt="${esc(p.code)}" loading="lazy">`
+                      : `<div class="bottle"><span>${esc(label)}</span></div>`;
+  return `<div class="vis k-${p.cat}" style="--h:${hue(p)}" data-open="${p.id}">${inner}${p.stock ? "" : '<span class="badge-off">Нет в наличии</span>'}</div>`;
+}
+function title(p){ return p.cat === "lux" ? p.name : p.code; }
+function subtitle(p){ return [p.cat === "lux" ? "Luxury · " + p.code : p.name, p.volume].filter(Boolean).join(" · "); }
+
+function buyControl(p){
+  if (!p.stock) return `<span class="muted">—</span>`;
+  const q = cart[p.id] || 0;
+  return q ? `<div class="stepper"><button data-dec="${p.id}">−</button><span>${q}</span><button data-inc="${p.id}">+</button></div>`
+           : `<button class="add" data-inc="${p.id}" aria-label="В корзину">+</button>`;
+}
+function card(p){
+  return `<div class="pc${p.stock ? "" : " off"}" id="pc-${p.id}">${vis(p)}
+    <div class="info"><div class="code" data-open="${p.id}">${esc(title(p))}</div>
+    <div class="fam">${esc([p.family, p.volume].filter(Boolean).join(" · "))}</div>
+    <div class="nm" data-open="${p.id}">${esc(keyNotes(p) || subtitle(p))}</div>
+    <div class="row"><span class="price">${rub(p.price)}</span><span class="ctl">${buyControl(p)}</span></div></div></div>`;
+}
+function renderGrid(){
+  const q = query.trim().toLowerCase();
+  let list = PRODUCTS.filter(p => (filter === "all" || p.cat === filter) && famMatch(p) &&
+    (!q || hay(p).includes(q)));
+  if (sort) list = [...list].sort((a,b) => sort === "asc" ? a.price - b.price : b.price - a.price);
+  $("#grid").innerHTML = list.map(card).join("");
+  $("#empty").style.display = list.length ? "none" : "block";
+  $("#found").textContent = list.length + " " + plural(list.length, ["товар","товара","товаров"]);
+}
+function hay(p){ return [p.code, p.name, p.id, p.family, p.notes, ...(p.top||[]), ...(p.heart||[]), ...(p.base||[])].join(" ").toLowerCase(); }
+function famMatch(p){
+  if (!fam) return true;
+  const f = (p.family || "").toLowerCase(), notes = [...(p.top||[]), ...(p.heart||[]), ...(p.base||[])].join(" ");
+  if (fam === "свеж")  return /цитрус|водн|зелён|фужер/.test(f);
+  if (fam === "сладк") return /гурман/.test(f) || /ванил|карамел|пралине|шоколад|мёд|сливки|какао/.test(notes);
+  return f.includes(fam);
+}
+function keyNotes(p){ return [...(p.top||[]), ...(p.heart||[])].slice(0, 4).join(", "); }
+function plural(n, f){ const a=n%100, b=n%10; return f[a>10&&a<20?2:b===1?0:b>=2&&b<=4?1:2]; }
+function refreshCard(id){
+  const el = document.querySelector(`#pc-${CSS.escape(id)} .ctl`); if (el) el.innerHTML = buyControl(BY[id]);
+}
+
+$("#q").oninput = e => { query = e.target.value; renderGrid(); };
+$("#sort").onchange = e => { sort = e.target.value; renderGrid(); };
+document.querySelectorAll("#chips .chip").forEach(c => c.onclick = () => {
+  document.querySelectorAll("#chips .chip").forEach(x => x.classList.remove("on"));
+  c.classList.add("on"); filter = c.dataset.f; renderGrid(); haptic();
+});
+document.querySelectorAll("#fchips .chip").forEach(c => c.onclick = () => {
+  document.querySelectorAll("#fchips .chip").forEach(x => x.classList.remove("on"));
+  c.classList.add("on"); fam = c.dataset.ff; renderGrid(); haptic();
+});
+
+/* ═══════ Корзина ═══════ */
+let cart = {};
+try { cart = JSON.parse(localStorage.getItem("essens_cart") || "{}") || {}; } catch(e) { cart = {}; }
+function saveCart(){ try { localStorage.setItem("essens_cart", JSON.stringify(cart)); } catch(e){} }
+function setQty(id, q){
+  q = Math.max(0, Math.min(20, q));
+  if (q) cart[id] = q; else delete cart[id];
+  saveCart(); refreshCard(id); updateCartUI(); if ($("#sheet").classList.contains("on")) renderSheet(id);
+  if (current === "cart") renderCart();
+}
+function cartItems(){ return Object.entries(cart).filter(([id]) => BY[id] && BY[id].stock); }
+function cartTotal(){ return cartItems().reduce((s,[id,q]) => s + BY[id].price * q, 0); }
+function cartCount(){ return cartItems().reduce((s,[,q]) => s + q, 0); }
+function updateCartUI(){
+  const n = cartCount(), s = cartTotal();
+  const c = $("#tabCnt"); c.textContent = n; c.style.display = n ? "grid" : "none";
+  $("#cbCount").textContent = `${n} ${plural(n,["товар","товара","товаров"])}`;
+  $("#cbSum").textContent = rub(s);
+  $("#cartbar").style.display = n && current === "shop" ? "block" : "none";
+}
+function renderCart(){
+  const items = cartItems();
+  $("#cartEmpty").style.display = items.length ? "none" : "block";
+  $("#cartFull").style.display = items.length ? "block" : "none";
+  if (!items.length) return;
+  $("#lines").innerHTML = items.map(([id,q]) => { const p = BY[id]; return `
+    <div class="line">${vis(p)}
+      <div class="t"><b>${esc(title(p))}</b><span>${esc(subtitle(p))}</span><span class="p">${rub(p.price*q)}</span></div>
+      <div class="stepper"><button data-dec="${id}">−</button><span>${q}</span><button data-inc="${id}">+</button></div>
+      <button class="rm" data-rm="${id}" aria-label="Удалить">×</button></div>`; }).join("");
+  $("#sum").textContent = rub(cartTotal());
+  $("#orderBtn").textContent = "Оформить заказ · " + rub(cartTotal());
+}
+
+/* ═══════ Окно товара ═══════ */
+function renderSheet(id){
+  const p = BY[id], q = cart[id] || 0;
+  $("#sheetIn").innerHTML = `<div class="grab"></div>${vis(p)}
+    <h3>${esc(title(p))}</h3><div class="meta">${esc(subtitle(p))} · арт. ${esc(p.id)}</div>
+    ${p.family ? `<span class="famchip">${esc(p.family)}</span>` : ""}
+    ${p.notes ? `<p class="notes">${esc(p.notes)}</p>` : ""}
+    ${(p.top||p.heart||p.base) ? `<div class="pyr">
+      ${p.top && p.top.length ? `<div><span>🍋 Верхние</span>${esc(p.top.join(", "))}</div>` : ""}
+      ${p.heart && p.heart.length ? `<div><span>🌸 Сердце</span>${esc(p.heart.join(", "))}</div>` : ""}
+      ${p.base && p.base.length ? `<div><span>🪵 Шлейф</span>${esc(p.base.join(", "))}</div>` : ""}
+    </div>` : ""}
+    <div class="buy"><span class="price">${rub(p.price)}</span>
+      ${!p.stock ? '<span class="muted">Нет в наличии</span>' : q
+        ? `<div class="stepper"><button data-dec="${id}">−</button><span>${q}</span><button data-inc="${id}">+</button></div>
+           <button class="btn" data-go="cart" style="width:auto">В корзину →</button>`
+        : `<button class="btn" data-inc="${id}" style="width:auto;padding:14px 22px">Добавить в корзину</button>`}
+    </div>`;
+}
+function openSheet(id){ renderSheet(id); $("#overlay").style.display="block"; requestAnimationFrame(()=>$("#sheet").classList.add("on")); haptic(); }
+function closeSheet(){ $("#sheet").classList.remove("on"); $("#overlay").style.display="none"; }
+$("#overlay").onclick = closeSheet;
+
+/* ═══════ Клики ═══════ */
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-inc],[data-dec],[data-rm],[data-open],[data-go]"); if (!t) return;
+  if (t.dataset.inc){ const id=t.dataset.inc, was=cart[id]||0; setQty(id, was+1); haptic(); if(!was) toast("Добавлено в корзину"); }
+  else if (t.dataset.dec){ setQty(t.dataset.dec, (cart[t.dataset.dec]||0) - 1); haptic(); }
+  else if (t.dataset.rm){ setQty(t.dataset.rm, 0); haptic("medium"); }
+  else if (t.dataset.open){ openSheet(t.dataset.open); }
+  else if (t.dataset.go){ closeSheet(); go(t.dataset.go); }
+});
+
+/* ═══════ Навигация ═══════ */
+let current = "shop";
+function go(id){
+  current = id;
+  document.querySelectorAll("section").forEach(s => s.classList.toggle("on", s.id === id));
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("on", t.dataset.t === id));
+  if (id === "cart") renderCart();
+  updateCartUI(); window.scrollTo(0,0); haptic();
+}
+document.querySelectorAll(".tab").forEach(t => t.onclick = () => go(t.dataset.t));
+
+/* ═══════ Оформление заказа ═══════ */
+document.querySelectorAll('input[name="dl"]').forEach(r => r.onchange = () => {
+  const pick = r.value === "Самовывоз" && r.checked;
+  $("#addrLabel").textContent = pick ? "Город (необязательно)" : r.value === "СДЭК" ? "Город и адрес пункта выдачи *" : "Индекс, город, адрес *";
+});
+$("#toBot").onclick = () => openBot();
+$("#order").onsubmit = e => {
+  e.preventDefault();
+  const items = cartItems(); if (!items.length) return;
+  const dl = document.querySelector('input[name="dl"]:checked').value;
+  const f = { name: $("#oName"), phone: $("#oPhone"), addr: $("#oAddr") };
+  const bad = [];
+  if (f.name.value.trim().length < 2) bad.push(f.name);
+  if (f.phone.value.replace(/\D/g,"").length < 10) bad.push(f.phone);
+  if (dl !== "Самовывоз" && f.addr.value.trim().length < 5) bad.push(f.addr);
+  Object.values(f).forEach(i => i.classList.toggle("bad", bad.includes(i)));
+  if (bad.length){ bad[0].focus(); toast("Заполните отмеченные поля"); try{tg.HapticFeedback.notificationOccurred("error")}catch(_){}; return; }
+
+  const order = {
+    type: "order",
+    items: items.map(([id,q]) => [id, q]),
+    name: f.name.value.trim().slice(0,80), phone: f.phone.value.trim().slice(0,20),
+    delivery: dl, address: f.addr.value.trim().slice(0,200),
+    pay: document.querySelector('input[name="pay"]:checked').value,
+    comment: $("#oComment").value.trim().slice(0,500),
+    total: cartTotal(),
+  };
+  if (!canSend){ $("#order").style.display="none"; $("#orderHint").style.display="block"; return; }
+  try { tg.HapticFeedback.notificationOccurred("success"); } catch(_){}
+  cart = {}; saveCart();
+  tg.sendData(JSON.stringify(order));          // бот получит заказ, окно закроется
+};
+
+/* ═══════ Поддержка ═══════ */
+if (inTG && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+  const u = tg.initDataUnsafe.user; $("#sName").value = [u.first_name,u.last_name].filter(Boolean).join(" ");
+}
+$("#sText").oninput = e => $("#sCnt").textContent = e.target.value.length;
+$("#sToBot").onclick = () => openBot("support");
+$("#sform").onsubmit = e => {
+  e.preventDefault();
+  const text = $("#sText").value.trim(); if (!text) { $("#sText").focus(); return; }
+  const payload = { type:"support", name:$("#sName").value.trim().slice(0,60), topic:$("#sTopic").value,
+                    contact:$("#sContact").value.trim().slice(0,60), text:text.slice(0,1500) };
+  if (canSend) { tg.sendData(JSON.stringify(payload)); return; }
+  $("#sform").style.display="none"; $("#sOk").style.display="block";
+};
+
+/* ═══════ Старт ═══════ */
+const start = (location.hash || "#shop").slice(1);
+go(["shop","cart","guide","support"].includes(start) ? start : "shop");
+fetch("products.json?v=" + Date.now())
+  .then(r => r.json())
+  .then(list => {
+    PRODUCTS = list.filter(p => p && p.id && p.price > 0);
+    BY = Object.fromEntries(PRODUCTS.map(p => [p.id, p]));
+    for (const id of Object.keys(cart)) if (!BY[id]) delete cart[id];
+    renderGrid(); updateCartUI(); if (current === "cart") renderCart();
+  })
+  .catch(() => { $("#grid").innerHTML = ""; $("#empty").style.display="block";
+                 $("#empty").textContent = "Не удалось загрузить каталог. Проверьте, что файл products.json загружен рядом с index.html."; });
+</script>
+</body>
+</html>
