@@ -67,8 +67,13 @@
   @media(min-width:520px){.grid{grid-template-columns:1fr 1fr 1fr}}
   .pc{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column}
   .pc .info{padding:10px 12px 12px;display:flex;flex-direction:column;gap:2px;flex:1}
-  .pc .code{font:700 17px "Cormorant Garamond",serif;letter-spacing:.5px}
-  .pc .nm{font-size:12.5px;color:var(--hint);line-height:1.3;min-height:33px}
+  .pc .code{font:700 18px/1.15 "Cormorant Garamond",serif;letter-spacing:.2px;cursor:pointer;margin-bottom:2px}
+  .pc .fam{font-size:12.5px;font-weight:600;color:var(--link)}
+  .kick{font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--hint);font-weight:600;margin-bottom:1px}
+  .insp{display:flex;gap:12px;align-items:center;background:var(--bg2);border-radius:14px;padding:12px 14px;margin:10px 0 4px}
+  .insp .ib{flex:0 0 auto;color:var(--text);opacity:.8}.insp span{display:block;font-size:13px;color:var(--hint)}
+  .insp b{display:block;font-size:16px;letter-spacing:.3px;margin-top:2px}
+  .pc .nm{font-size:12px;color:var(--hint);line-height:1.3;min-height:31px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .pc .row{display:flex;align-items:center;justify-content:space-between;margin-top:8px;gap:6px}
   .pc .price{font-weight:700;font-size:15px;white-space:nowrap}
   .pc.off{opacity:.55}
@@ -113,7 +118,12 @@
   .sheet .vis{border-radius:18px;max-height:46vh;aspect-ratio:auto;height:46vw;min-height:220px}
   .sheet h3{font-size:28px;margin-top:14px}
   .sheet .meta{color:var(--hint);margin:2px 0 10px}
-  .sheet .notes{font-size:14px;margin:0 0 12px}
+  .sheet .notes{font-size:14.5px;margin:10px 0 12px;line-height:1.5}
+  .famchip{display:inline-block;padding:5px 12px;border-radius:99px;background:var(--bg2);color:var(--link);font-weight:600;font-size:13px}
+  .pyr{display:grid;gap:8px;margin:0 0 14px}
+  .pyr div{display:grid;grid-template-columns:96px 1fr;gap:10px;align-items:start;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13.5px}
+  .pyr span{color:var(--hint);font-size:12.5px;font-weight:600}
+  .chips.sub{padding-top:8px}.chips.sub .chip{font-size:12.5px;padding:6px 12px}
   .sheet .buy{display:flex;gap:10px;align-items:center;margin-top:8px}
   .sheet .buy .price{font-weight:700;font-size:22px;margin-right:auto}
   .sheet .stepper{height:48px}.sheet .stepper button{width:44px;height:48px}
@@ -189,7 +199,7 @@
     <p>Оригинальные ароматы с доставкой. Добавьте в корзину и оформите заказ прямо здесь.</p>
   </div>
 
-  <input class="search" id="q" type="search" placeholder="Поиск: W195, M045, «чёрное солнце»…">
+  <input class="search" id="q" type="search" placeholder="Поиск: Baccarat, Sauvage, ваниль, W195…">
   <div class="chips" id="chips">
     <button class="chip on" data-f="all">Все</button>
     <button class="chip" data-f="w">Женские</button>
@@ -197,6 +207,15 @@
     <button class="chip" data-f="lux">Luxury</button>
     <button class="chip" data-f="probe">Пробники</button>
     <button class="chip" data-f="set">Наборы и уход</button>
+  </div>
+  <div class="chips sub" id="fchips">
+    <button class="chip on" data-ff="">Любой аромат</button>
+    <button class="chip" data-ff="цветоч">🌸 Цветочные</button>
+    <button class="chip" data-ff="фрукт">🍑 Фруктовые</button>
+    <button class="chip" data-ff="свеж">🍋 Свежие</button>
+    <button class="chip" data-ff="древес">🌲 Древесные</button>
+    <button class="chip" data-ff="восточ">🌙 Восточные</button>
+    <button class="chip" data-ff="сладк">🍦 Сладкие</button>
   </div>
 
   <button class="club" data-go="guide">
@@ -414,7 +433,7 @@ $("#dnote").textContent = "🚚 " + CFG.delivery;
 
 /* ═══════ Каталог ═══════ */
 let PRODUCTS = [], BY = {};
-let filter = "all", query = "", sort = "";
+let filter = "all", query = "", sort = "", fam = "";
 
 function hue(p){
   let h = 0; for (const c of p.id) h = (h*31 + c.charCodeAt(0)) % 997;
@@ -426,8 +445,8 @@ function vis(p){
                       : `<div class="bottle"><span>${esc(label)}</span></div>`;
   return `<div class="vis k-${p.cat}" style="--h:${hue(p)}" data-open="${p.id}">${inner}${p.stock ? "" : '<span class="badge-off">Нет в наличии</span>'}</div>`;
 }
-function title(p){ return p.cat === "lux" ? p.name : p.code; }
-function subtitle(p){ return [p.cat === "lux" ? "Luxury · " + p.code : p.name, p.volume].filter(Boolean).join(" · "); }
+function title(p){ return p.title || (p.cat === "lux" ? p.name : p.code); }
+function subtitle(p){ return [p.cat === "set" ? "" : p.code, p.cat === "lux" ? "Luxury" : p.name, p.volume].filter(Boolean).join(" · "); }
 
 function buyControl(p){
   if (!p.stock) return `<span class="muted">—</span>`;
@@ -437,18 +456,35 @@ function buyControl(p){
 }
 function card(p){
   return `<div class="pc${p.stock ? "" : " off"}" id="pc-${p.id}">${vis(p)}
-    <div class="info"><div class="code" data-open="${p.id}">${esc(title(p))}</div><div class="nm">${esc(subtitle(p))}</div>
+    <div class="info">${kicker(p)}<div class="code" data-open="${p.id}">${esc(title(p))}</div>
+    <div class="fam">${esc([p.cat === "set" ? "" : p.code, p.family].filter(Boolean).join(" · "))}</div>
+    <div class="nm" data-open="${p.id}">${esc(keyNotes(p) || subtitle(p))}</div>
     <div class="row"><span class="price">${rub(p.price)}</span><span class="ctl">${buyControl(p)}</span></div></div></div>`;
 }
 function renderGrid(){
   const q = query.trim().toLowerCase();
-  let list = PRODUCTS.filter(p => (filter === "all" || p.cat === filter) &&
-    (!q || (p.code + " " + p.name + " " + p.id + " " + (p.notes||"")).toLowerCase().includes(q)));
+  let list = PRODUCTS.filter(p => (filter === "all" || p.cat === filter) && famMatch(p) &&
+    (!q || hay(p).includes(q)));
   if (sort) list = [...list].sort((a,b) => sort === "asc" ? a.price - b.price : b.price - a.price);
   $("#grid").innerHTML = list.map(card).join("");
   $("#empty").style.display = list.length ? "none" : "block";
   $("#found").textContent = list.length + " " + plural(list.length, ["товар","товара","товаров"]);
 }
+function hay(p){ return [p.title, p.inspired, p.code, p.name, p.id, p.family, p.notes, ...(p.top||[]), ...(p.heart||[]), ...(p.base||[])].join(" ").toLowerCase(); }
+function famMatch(p){
+  if (!fam) return true;
+  const f = (p.family || "").toLowerCase(), notes = [...(p.top||[]), ...(p.heart||[]), ...(p.base||[])].join(" ");
+  if (fam === "свеж")  return /цитрус|водн|зелён|фужер/.test(f);
+  if (fam === "сладк") return /гурман/.test(f) || /ванил|карамел|пралине|шоколад|мёд|сливки|какао/.test(notes);
+  return f.includes(fam);
+}
+function kicker(p){
+  if (!p.inspired) return "";
+  if (p.title === p.inspired) return '<div class="kick">Вдохновлён:</div>';
+  if ((p.title || "").includes(p.inspired)) return "";
+  return `<div class="kick">Вдохновлён: ${esc(p.inspired)}</div>`;
+}
+function keyNotes(p){ return [...(p.top||[]), ...(p.heart||[])].slice(0, 4).join(", "); }
 function plural(n, f){ const a=n%100, b=n%10; return f[a>10&&a<20?2:b===1?0:b>=2&&b<=4?1:2]; }
 function refreshCard(id){
   const el = document.querySelector(`#pc-${CSS.escape(id)} .ctl`); if (el) el.innerHTML = buyControl(BY[id]);
@@ -456,9 +492,13 @@ function refreshCard(id){
 
 $("#q").oninput = e => { query = e.target.value; renderGrid(); };
 $("#sort").onchange = e => { sort = e.target.value; renderGrid(); };
-document.querySelectorAll(".chip").forEach(c => c.onclick = () => {
-  document.querySelectorAll(".chip").forEach(x => x.classList.remove("on"));
+document.querySelectorAll("#chips .chip").forEach(c => c.onclick = () => {
+  document.querySelectorAll("#chips .chip").forEach(x => x.classList.remove("on"));
   c.classList.add("on"); filter = c.dataset.f; renderGrid(); haptic();
+});
+document.querySelectorAll("#fchips .chip").forEach(c => c.onclick = () => {
+  document.querySelectorAll("#fchips .chip").forEach(x => x.classList.remove("on"));
+  c.classList.add("on"); fam = c.dataset.ff; renderGrid(); haptic();
 });
 
 /* ═══════ Корзина ═══════ */
@@ -499,8 +539,15 @@ function renderCart(){
 function renderSheet(id){
   const p = BY[id], q = cart[id] || 0;
   $("#sheetIn").innerHTML = `<div class="grab"></div>${vis(p)}
-    <h3>${esc(title(p))}</h3><div class="meta">${esc(subtitle(p))} · арт. ${esc(p.id)}</div>
+    <h3>${esc(p.title === p.inspired ? p.code : title(p))}</h3><div class="meta">${esc(p.title === p.inspired ? [p.name, p.volume].filter(Boolean).join(" · ") : subtitle(p))} · арт. ${esc(p.id)}</div>
+    ${p.inspired ? `<div class="insp"><svg class="ib" viewBox="0 0 32 40" width="30" height="38" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 2h8v6h-8z"/><path d="M13 8v4M19 8v4"/><path d="M7 14c0-1.1.9-2 2-2h14c1.1 0 2 .9 2 2v20a4 4 0 0 1-4 4H11a4 4 0 0 1-4-4z"/><path d="M7 26c4-2 8 2 12 0s4-2 6-1" stroke="#c45574"/></svg><div><span>Ноты аромата, вдохновлённые:</span><b>${esc(p.inspired)}</b></div></div>` : ""}
+    ${p.family ? `<span class="famchip">${esc(p.family)}</span>` : ""}
     ${p.notes ? `<p class="notes">${esc(p.notes)}</p>` : ""}
+    ${(p.top||p.heart||p.base) ? `<div class="pyr">
+      ${p.top && p.top.length ? `<div><span>🍋 Верхние</span>${esc(p.top.join(", "))}</div>` : ""}
+      ${p.heart && p.heart.length ? `<div><span>🌸 Сердце</span>${esc(p.heart.join(", "))}</div>` : ""}
+      ${p.base && p.base.length ? `<div><span>🪵 Шлейф</span>${esc(p.base.join(", "))}</div>` : ""}
+    </div>` : ""}
     <div class="buy"><span class="price">${rub(p.price)}</span>
       ${!p.stock ? '<span class="muted">Нет в наличии</span>' : q
         ? `<div class="stepper"><button data-dec="${id}">−</button><span>${q}</span><button data-inc="${id}">+</button></div>
