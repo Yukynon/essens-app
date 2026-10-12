@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>Переход к оплате</title>
+<style>
+  :root{--bg:#faf7f4;--text:#2a2320;--hint:#8b7f78;--btn:#9c4a5a;--card:#fff;--line:rgba(128,100,90,.18)}
+  @media (prefers-color-scheme: dark){:root{--bg:#1b1718;--text:#f1e9e6;--hint:#a89c97;--card:#262022;--line:rgba(255,255,255,.12)}}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;display:grid;place-items:center;background:var(--bg);color:var(--text);
+       font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:16px}
+  .box{max-width:420px;width:100%;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px 22px;text-align:center}
+  h1{font-size:21px;margin:10px 0 6px}
+  p{color:var(--hint);margin:6px 0 0}
+  .spin{width:34px;height:34px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--btn);margin:0 auto;animation:r 1s linear infinite}
+  @keyframes r{to{transform:rotate(360deg)}}
+  button{margin-top:18px;width:100%;border:0;border-radius:14px;padding:14px;background:var(--btn);color:#fff;font:600 15px system-ui,sans-serif;cursor:pointer}
+  .err{display:none}
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="spin" id="spin"></div>
+  <h1 id="h">Открываем вашу корзину ESSENS…</h1>
+  <p id="t">Сейчас откроется официальный сайт ESSENS с уже собранной корзиной и доставкой в Россию.</p>
+  <form id="f" method="POST">
+    <input type="hidden" name="country_id" value="165">
+    <input type="hidden" name="country_change" value="">
+    <button type="submit" id="go">Открыть корзину</button>
+  </form>
+  <p style="font-size:13px;margin-top:14px">Если вверху сайта указана другая страна доставки, нажмите «Изменить» и выберите «Россия».</p>
+</div>
+<script>
+  // Корзина ESSENS MyEshop открывается сразу со страной доставки «Россия» (country_id=165).
+  var id = new URLSearchParams(location.search).get("id") || "";
+  var f = document.getElementById("f");
+  if (/^\d{1,10}$/.test(id)) {
+    f.action = "https://my.essens.com/share/" + id;
+    setTimeout(function(){ f.submit(); }, 400);
+  } else {
+    document.getElementById("spin").style.display = "none";
+    document.getElementById("h").textContent = "Ссылка на корзину неполная";
+    document.getElementById("t").textContent = "Вернитесь в чат с ботом и нажмите кнопку оплаты ещё раз или напишите в поддержку.";
+    f.style.display = "none";
+  }
+</script>
+</body>
+</html>
