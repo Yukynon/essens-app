@@ -419,7 +419,7 @@ function card(p){
   return `<div class="pc${p.stock ? "" : " off"}" id="pc-${p.id}">${vis(p)}
     <div class="info">${kicker(p)}<div class="code" data-open="${p.id}">${esc(title(p))}</div>
     <div class="fam">${esc([p.code, p.family || (PERF.has(p.cat) ? "" : subName(p))].filter(Boolean).join(" · "))}</div>
-    <div class="nm" data-open="${p.id}">${esc(keyNotes(p) || (p.title && p.title !== p.name ? p.name : ""))}</div>
+    <div class="nm" data-open="${p.id}">${esc(keyNotes(p) || (p.title && p.title !== p.name ? p.name : "") || p.notes || "")}</div>
     <div class="row"><span class="price">${rub(p.price)}</span><span class="ctl">${buyControl(p)}</span></div></div></div>`;
 }
 function renderGrid(){
