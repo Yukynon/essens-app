@@ -126,6 +126,14 @@
   .sheet .notes{font-size:14.5px;margin:10px 0 12px;line-height:1.5}
   .famchip{display:inline-block;padding:5px 12px;border-radius:99px;background:var(--bg2);color:var(--link);font-weight:600;font-size:13px}
   .pyr{display:grid;gap:8px;margin:0 0 14px}
+  .pc .av{font-size:12px;font-weight:600;margin-top:2px}
+  .av.ok{color:#2e8b57}.av.low{color:#d9822b}.av.no{color:var(--hint)}
+  .whs{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:0 0 14px}
+  .whs h4{margin:0 0 8px;font-size:14px}
+  .whs .w{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid var(--line);font-size:14px}
+  .whs .w:first-of-type{border-top:0}
+  .whs .w b{font-weight:600}.whs .w .ok{color:#2e8b57}.whs .w .low{color:#d9822b}.whs .w .no{color:var(--hint)}
+  .whs .upd{color:var(--hint);font-size:12px;margin-top:6px}
   .pyr div{display:grid;grid-template-columns:96px 1fr;gap:10px;align-items:start;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13.5px}
   .pyr span{color:var(--hint);font-size:12.5px;font-weight:600}
   .chips.sub{padding-top:8px}.chips.sub .chip{font-size:12.5px;padding:6px 12px}
@@ -409,6 +417,23 @@ function subName(p){ const k = (p.subs || [])[0]; return k && SUBS[k] ? SUBS[k][
 function kind(p){ return {w: "Женский парфюм", m: "Мужской парфюм", lux: "Luxury"}[p.cat] || (p.title ? p.name : subName(p)); }
 function subtitle(p){ return [p.code, kind(p), p.volume].filter(Boolean).join(" · "); }
 
+let STOCK = null;
+function availLine(p){
+  if (!p.wh) return "";
+  if (!p.stock) return `<div class="av no">Нет в наличии</div>`;
+  const hasFull = p.wh.some(x => x === 2);
+  return hasFull ? `<div class="av ok">● В наличии</div>` : `<div class="av low">● Осталось мало</div>`;
+}
+function whBlock(p){
+  if (!p.wh || !STOCK) return "";
+  const st = {2: ['ok','есть'], 1: ['low','меньше 5 шт.'], 0: ['no','нет']};
+  const rows = STOCK.wh.map(([, name], i) => { const [c, t] = st[p.wh[i] ?? 0] || st[0];
+    return `<div class="w"><span>📦 ${esc(name)}</span><b class="${c}">${t}</b></div>`; }).join("");
+  let upd = "";
+  const d = new Date(STOCK.updated);
+  if (!isNaN(d)) upd = `<div class="upd">Обновлено ${d.toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}. При оплате на сайте выберите склад, где товар есть.</div>`;
+  return `<div class="whs"><h4>Наличие на складах</h4>${rows}${upd}</div>`;
+}
 function buyControl(p){
   if (!p.stock) return `<span class="muted">—</span>`;
   const q = cart[p.id] || 0;
@@ -419,7 +444,7 @@ function card(p){
   return `<div class="pc${p.stock ? "" : " off"}" id="pc-${p.id}">${vis(p)}
     <div class="info">${kicker(p)}<div class="code" data-open="${p.id}">${esc(title(p))}</div>
     <div class="fam">${esc([p.code, p.family || (PERF.has(p.cat) ? "" : subName(p))].filter(Boolean).join(" · "))}</div>
-    <div class="nm" data-open="${p.id}">${esc(keyNotes(p) || (p.title && p.title !== p.name ? p.name : "") || p.notes || "")}</div>
+    <div class="nm" data-open="${p.id}">${esc(keyNotes(p) || (p.title && p.title !== p.name ? p.name : "") || p.notes || "")}</div>${availLine(p)}
     <div class="row"><span class="price">${rub(p.price)}</span><span class="ctl">${buyControl(p)}</span></div></div></div>`;
 }
 function renderGrid(){
@@ -521,6 +546,7 @@ function renderSheet(id){
       ${p.heart && p.heart.length ? `<div><span>🌸 Сердце</span>${esc(p.heart.join(", "))}</div>` : ""}
       ${p.base && p.base.length ? `<div><span>🪵 Шлейф</span>${esc(p.base.join(", "))}</div>` : ""}
     </div>` : ""}
+    ${whBlock(p)}
     <div class="buy"><span class="price">${rub(p.price)}</span>
       ${!p.stock ? '<span class="muted">Нет в наличии</span>' : q
         ? `<div class="stepper"><button data-dec="${id}">−</button><span>${q}</span><button data-inc="${id}">+</button></div>
@@ -604,10 +630,17 @@ $("#sform").onsubmit = e => {
 /* ═══════ Старт ═══════ */
 const start = (location.hash || "#shop").slice(1);
 go(["shop","cart","support"].includes(start) ? start : "shop");
+const stockReq = fetch("stock.json?v=" + Date.now()).then(r => r.ok ? r.json() : null).catch(() => null);
 fetch("products.json?v=" + Date.now())
   .then(r => r.json())
-  .then(list => {
+  .then(async list => {
     PRODUCTS = list.filter(p => p && p.id && p.price > 0);
+    const s = await stockReq;
+    if (s && s.items && Array.isArray(s.wh)) {
+      STOCK = s;
+      for (const p of PRODUCTS) { const a = s.items[p.id];
+        if (Array.isArray(a)) { p.wh = a; if (p.stock !== false) p.stock = a.some(x => x > 0); } }
+    }
     BY = Object.fromEntries(PRODUCTS.map(p => [p.id, p]));
     for (const id of Object.keys(cart)) if (!BY[id]) delete cart[id];
     renderSubs(); renderGrid(); updateCartUI(); if (current === "cart") renderCart();
