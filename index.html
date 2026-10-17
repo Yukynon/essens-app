@@ -351,7 +351,7 @@
 /* ═══════ Настройки: бот передаёт их в адресе страницы (из .env). Справа — запасные значения ═══════ */
 const P = new URLSearchParams(location.search);
 const CFG = {
-  ref:      P.get("ref")  || "https://www.essensworld.ru/r-952080359",
+  ref:      P.get("ref")  || "https://www.essens.com/ru/r-952080359",
   bot:      P.get("bot")  || "",
   shop:     P.get("shop") || "Ароматы ESSENS",
   support:  (P.get("support") || "").replace(/^@/, ""),
