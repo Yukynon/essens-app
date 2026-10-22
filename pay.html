@@ -34,7 +34,9 @@
 </div>
 <script>
   // Корзина ESSENS MyEshop открывается сразу со страной доставки «Россия» (country_id=165).
-  var id = new URLSearchParams(location.search).get("id") || "";
+  var q = new URLSearchParams(location.search);
+  var id = q.get("id") || "";
+  var shop = /^\d{6,12}$/.test(q.get("shop") || "") ? q.get("shop") : "952080359";
   var f = document.getElementById("f");
   if (/^\d{1,10}$/.test(id)) {
     f.action = "https://my.essens.com/share/" + id;
@@ -42,8 +44,11 @@
   } else {
     document.getElementById("spin").style.display = "none";
     document.getElementById("h").textContent = "Ссылка на корзину неполная";
-    document.getElementById("t").textContent = "Вернитесь в чат с ботом и нажмите кнопку оплаты ещё раз или напишите в поддержку.";
+    document.getElementById("t").textContent = "Вернитесь в чат с ботом и нажмите кнопку оплаты ещё раз — или откройте наш магазин на сайте ESSENS.";
     f.style.display = "none";
+    var a = document.createElement("a"); a.href = "https://my.essens.com/" + shop; a.textContent = "Открыть магазин ESSENS";
+    a.style.cssText = "display:block;margin-top:18px;padding:14px;border-radius:14px;background:var(--btn);color:#fff;text-decoration:none;font-weight:600";
+    document.querySelector(".box").appendChild(a);
   }
 </script>
 </body>
