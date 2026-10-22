@@ -108,6 +108,7 @@
   .btn.soft{background:var(--accent-soft);color:var(--accent)}
   .btn.line{background:transparent;color:var(--text);box-shadow:0 0 0 1px var(--line) inset}
   .btn[disabled]{opacity:.5}
+  .btn.line.sure{box-shadow:0 0 0 1.5px #e0544f inset;color:#e0544f}
 
   /* ── шторка ── */
   .ov{position:fixed;inset:0;background:rgba(10,6,12,.5);z-index:30;opacity:0;pointer-events:none;transition:opacity .25s}
@@ -709,6 +710,7 @@ function openOrder(id){
   if (o[1] === "l" && payURL(o)) acts.push(`<button class="btn" data-pay="${esc(payURL(o))}">Оплатить ${rub(o[3])}</button>`);
   if (tu) acts.push(`<button class="btn" data-url="${esc(tu)}">Отследить посылку</button>`);
   acts.push(`<button class="btn soft" data-repeat="${o[0]}">Повторить заказ</button>`);
+  if (["n", "l", "c"].includes(o[1])) acts.push(`<button class="btn line" data-cancel="${o[0]}">Отменить заказ</button>`);
   openSheet("order", String(o[0]), html + `<div class="acts">${acts.join("")}</div>`, "");
   setTimeout(() => { const r = document.querySelector("#bigB .juice"); if (r) r.style.transform = `scaleY(${r.dataset.h})`; }, 250);
 }
@@ -718,6 +720,17 @@ function repeatOrder(id){
   for (const [pid, q] of o[10] || []) { const p = BY[pid]; if (p && p.stock) { cart[pid] = Math.min(20, (cart[pid] || 0) + q); n += q; } }
   saveCart(); updateBadge(true); closeSheet();
   if (n) { toast(`В корзине +${n} ${plural(n,["товар","товара","товаров"])}`); go("cart"); } else toast("Этих товаров сейчас нет в наличии");
+}
+
+function cancelOrder(btn, id){
+  if (!btn.classList.contains("sure")) {          // первое нажатие — переспрашиваем
+    btn.classList.add("sure"); btn.textContent = "Точно отменить? Нажмите ещё раз"; notify("warning"); return;
+  }
+  if (!canSend) { toast("Откройте приложение кнопкой «Заказы» внизу чата"); return; }
+  const o = ((OD && OD.o) || []).find(x => String(x[0]) === String(id));
+  if (o) { o[1] = "x"; store.set("essens_orders", OD); }
+  notify("success");
+  tg.sendData(JSON.stringify({ type: "cancel", order: Number(id) }));   // бот отменит заказ, окно закроется
 }
 
 /* ═══════ Помощь ═══════ */
@@ -737,7 +750,7 @@ $("#sSend").onclick = () => {
 
 /* ═══════ Клики ═══════ */
 document.addEventListener("click", e => {
-  const t = e.target.closest("[data-inc],[data-dec],[data-open],[data-go],[data-order],[data-copy],[data-pay],[data-url],[data-repeat]"); if (!t) return;
+  const t = e.target.closest("[data-inc],[data-dec],[data-open],[data-go],[data-order],[data-copy],[data-pay],[data-url],[data-repeat],[data-cancel]"); if (!t) return;
   const d = t.dataset;
   if (d.inc) { const was = cart[d.inc] || 0; setQty(d.inc, was + 1); haptic(); if (!was) fly(t); else updateBadge(true); }
   else if (d.dec) { setQty(d.dec, (cart[d.dec] || 0) - 1); haptic(); }
@@ -748,6 +761,7 @@ document.addEventListener("click", e => {
   else if (d.pay) openLink(d.pay);
   else if (d.url) openLink(d.url);
   else if (d.repeat) repeatOrder(d.repeat);
+  else if (d.cancel) cancelOrder(t, d.cancel);
 });
 
 /* ═══════ Навигация ═══════ */
