@@ -208,6 +208,7 @@
   .oi .q{color:var(--hint)}
   .acts{display:grid;gap:8px;margin-top:16px}
   .upd{font-size:12px;color:var(--hint);text-align:center;margin:14px 0 4px}
+  .sending{text-align:center;padding:30px 0 40px}.sending .sb{color:var(--hint);display:inline-block;margin-bottom:12px}
 
   /* ── помощь ── */
   .tgbtn{display:flex;align-items:center;gap:12px;background:var(--card);border:0;border-radius:var(--r-md);padding:14px;width:100%;text-align:left}
@@ -621,8 +622,11 @@ function sendOrder(){
     pay: $("#pay .on") ? $("#pay .on").dataset.v : CFG.pm,
     comment: ($("#oComment") ? $("#oComment").value.trim() : "").slice(0,500), total: cartTotal() };
   if (!canSend) { $("#notTG").style.display = "flex"; $("#sheetFoot").innerHTML = `<button class="btn" id="toBot">Перейти в чат</button>`; return; }
-  notify("success"); cart = {}; saveCart();
-  tg.sendData(JSON.stringify(order));           // бот получит заказ, окно закроется
+  notify("success"); cart = {}; saveCart(); updateBadge(); renderCart();
+  $("#sheetIn").innerHTML = `<div class="sending"><span class="sb">${bottle(0, "var(--accent)", 64)}</span><div class="ptitle">Собираем заказ…</div><div class="psub">Подождите пару секунд</div></div>`;
+  $("#sheetFoot").style.display = "none";
+  setTimeout(() => { const r = document.querySelector(".sending .juice"); if (r) r.style.transform = "scaleY(1)"; }, 60);
+  setTimeout(() => tg.sendData(JSON.stringify(order)), 900);   // бот получит заказ, окно закроется
 }
 
 /* ═══════ Заказы (история приходит от бота в ссылке) ═══════ */
@@ -634,11 +638,11 @@ function b64json(s){
 let OD = (() => {
   const fresh = b64json(P.get("o") || ""), old = store.get("essens_orders", null);
   if (!fresh) return old;
-  if (!old || !old.o) { store.set("essens_orders", fresh); return fresh; }
+  if (!old || !old.o || (fresh.g || "1") !== (old.g || "1")) { store.set("essens_orders", fresh); return fresh; }  // история очищена — начинаем заново
   const newer = fresh.t >= old.t ? fresh : old, other = newer === fresh ? old : fresh;
   const byId = new Map(other.o.map(o => [o[0], o]));
   newer.o.forEach(o => byId.set(o[0], o));
-  const merged = {t: newer.t, o: [...byId.values()].sort((a, b) => b[0] - a[0]).slice(0, 40)};
+  const merged = {t: newer.t, g: fresh.g, o: [...byId.values()].sort((a, b) => b[0] - a[0]).slice(0, 40)};
   store.set("essens_orders", merged); return merged;
 })();
 // [id, статус, время, сумма, оплата, корзина, трек, ссылка трека, № ESSENS, статус ESSENS, [[товар, шт]]]
